@@ -63,7 +63,8 @@
               shell-default-position 'bottom
               shell-default-term-shell "/bin/bash")
       (spell-checking :variables
-                      spell-checking-enable-by-default t
+                      spell-checking-enable-by-default nil
+                      =enable-flyspell-auto-completion= t
                       spell-checking-enable-auto-dictionary t)
       (syntax-checking :variables
                         syntax-checking-enable-tooltips t
@@ -357,6 +358,9 @@
     (spacemacs/set-leader-keys "af" 'disk-usage))
   (progn ;; emacs
     (setq scroll-margin 10)
+    (global-company-mode t)
+    (global-hl-line-mode -1)
+    (global-visual-line-mode t)
     (defun kill-buffer-and-window ()
       "Kill the buffer and window."
       (interactive)
@@ -364,8 +368,7 @@
       (delete-window))
     (spacemacs/set-leader-keys
       "wq" 'kill-buffer-and-window)
-    (add-hook 'focus-out-hook
-              (lambda () (save-some-buffers t))))
+    (add-hook 'focus-out-hook (lambda () (save-some-buffers t))))
   (progn ;; evil
     (define-key evil-normal-state-map "gl" 'spacemacs/evil-search-clear-highlight))
   (progn ;; eww
@@ -398,10 +401,11 @@
     ;; (evil-define-key 'hybrid ein:notebook-multilang-mode-map
     ;;   (kbd "<C-return>") 'ein:worksheet-execute-cell
     ;;   (kbd "<S-return>") 'ein:worksheet-execute-cell-and-goto-next))
-  (progn ;; line
-    (global-company-mode t)
-    (global-hl-line-mode -1)
-    (global-visual-line-mode t))
+  ;; (progn ;; ispell
+  ;;   (setq ispell-dictionnary "en,fr"
+  ;;         ispell-program-name "hunspell"
+  ;;         ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff")
+  ;;                                             "fr" "~/.spacemacs.d/dicts/fr.aff")))
   (progn ;; magit
     (setq magit-repository-directories '(("~/Projects/" . 1))
           magit-repolist-columns '(("Name" 20 magit-repolist-column-ident ())
@@ -467,13 +471,13 @@
           eshell-prompt-function (lambda nil
                                    (concat
                                     (propertize (user-login-name) 'face `(:foreground "red"))
-                                    (propertize " at " 'face `(:foreground "white"))
+                                    (propertize " at " 'face `(:foreground "black"))
                                     (propertize (system-name) 'face `(:foreground "green"))
-                                    (propertize " in " 'face `(:foreground "white"))
+                                    (propertize " in " 'face `(:foreground "black"))
                                     (propertize (if (string= (eshell/pwd) (getenv "HOME"))
                                                     "~" (eshell/basename (eshell/pwd)))
                                                 'face `(:foreground "royal blue"))
-                                    (propertize " λ "'face `(:foreground "white")))))
+                                    (propertize " λ "'face `(:foreground "black")))))
     (evil-set-initial-state 'eshell-mode 'insert)
     ;; (defun eshell-new ()
     ;;   "Open a new eshell."
@@ -485,12 +489,18 @@
       "as" 'spacemacs/shell-pop-ansi-term))
   (progn ;; spacemacs
     (setq spacemacs-layouts-directory "~/.layouts/")
-    (spacemacs/set-leader-keys "=" 'spacemacs/workspaces-transient-state/body))
+    (defun switch-to-messages-buffer ()
+      (interactive)
+      (switch-to-buffer "*Messages*"))
+    (spacemacs/set-leader-keys
+      "bM" 'switch-to-messages-buffer
+      "=" 'spacemacs/workspaces-transient-state/body))
   (progn ;; yasnippet
     (setq yas-snippet-dirs '("~/.spacemacs.d/snippets"))
     (spacemacs/set-leader-keys
       "ir" 'yas-reload-all
       "is" 'yas/visit-snippet-file)))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
