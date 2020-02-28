@@ -32,22 +32,22 @@
                       auto-completion-enable-help-tooltip t
                       auto-completion-enable-sort-by-usage t
                       ;; keys
+                      auto-completion-tab-key-behavior nil
                       auto-completion-return-key-behavior nil
-                      auto-completion-tab-key-behavior 'complete
                       ;; snippets
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets")
       clojure
       emacs-lisp
       deft
-      (git :variables
-           git-magit-status-fullscreen nil)
+      git
       github
-      ipython-notebook
+      ;; ipython-notebook
       (org :variables
            org-enable-github-support t
            org-enable-reveal-js-support t
            org-projectile-file "~/Notes/TODO.org")
+      pdf-tools
       (python :variables
               python-test-runner 'pytest
               python-auto-set-local-pyenv-version nil
@@ -63,7 +63,7 @@
               shell-default-position 'bottom
               shell-default-term-shell "/bin/bash")
       (spell-checking :variables
-                      spell-checking-enable-by-default nil
+                      spell-checking-enable-by-default t
                       spell-checking-enable-auto-dictionary t)
       (syntax-checking :variables
                         syntax-checking-enable-tooltips t
@@ -103,7 +103,7 @@
    ;; (default t)
    dotspacemacs-elpa-https t
    ;; Maximum allowed time in seconds to contact an ELPA repository.
-   dotspacemacs-elpa-timeout 5
+   dotspacemacs-elpa-timeout 10
    ;; If non nil then spacemacs will check for updates at startup
    ;; when the current branch is not `develop'. Note that checking for
    ;; new versions works via git commands, thus it calls GitHub services
@@ -131,7 +131,7 @@
    ;; directory. A string value must be a path to an image format supported
    ;; by your Emacs build.
    ;; If the value is nil then no banner is displayed. (default 'official)
-   dotspacemacs-startup-banner 'official
+   dotspacemacs-startup-banner nil
    ;; List of items to show in startup buffer or an association list of
    ;; the form `(list-type . list-size)`. If nil then it is disabled.
    ;; Possible values for list-type are:
@@ -150,7 +150,8 @@
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(monokai
+   dotspacemacs-themes '(leuven
+                         monokai
                          spacemacs-dark
                          spacemacs-light)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
@@ -303,7 +304,7 @@
    dotspacemacs-highlight-delimiters 'all
    ;; If non nil, advise quit functions to keep server open when quitting.
    ;; (default nil)
-   dotspacemacs-persistent-server t
+   dotspacemacs-persistent-server nil
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
    ;; (default '("ag" "pt" "ack" "grep"))
@@ -331,11 +332,9 @@
     (require 'atomic-chrome)
     (atomic-chrome-start-server)
     (setq atomic-chrome-buffer-open-style 'split
-          atomic-chrome-default-major-mode 'markdown-mode
+          atomic-chrome-default-major-mode 'org-mode
           atomic-chrome-url-major-mode-alist '(("github\\.com" . gfm-mode)
                                                ("localhost" . python-mode))))
-  (progn ;; buffers
-    (add-hook 'focus-out-hook (lambda () (save-some-buffers t))))
   (progn ;; clojure
     (setq cider-save-file-on-load t
           cider-repl-use-pretty-printing t
@@ -356,11 +355,22 @@
           deft-extensions '("org")))
   (progn ;; disk-usage
     (spacemacs/set-leader-keys "af" 'disk-usage))
+  (progn ;; emacs
+    (setq scroll-margin 10)
+    (defun kill-buffer-and-window ()
+      "Kill the buffer and window."
+      (interactive)
+      (kill-this-buffer)
+      (delete-window))
+    (spacemacs/set-leader-keys
+      "wq" 'kill-buffer-and-window)
+    (add-hook 'focus-out-hook
+              (lambda () (save-some-buffers t))))
   (progn ;; evil
     (define-key evil-normal-state-map "gl" 'spacemacs/evil-search-clear-highlight))
   (progn ;; eww
-    (setq browse-url-browser-function 'eww-browse-url
-          eww-search-prefix "https://duckduckgo.com/lite")
+    (setq eww-search-prefix "https://duckduckgo.com/lite"
+          browse-url-browser-function 'eww-browse-url)
     (spacemacs/set-leader-keys "." 'eww)
     (evil-define-key 'normal eww-mode-map
       "O" 'eww
@@ -379,8 +389,6 @@
       "[" 'eww-previous-url
       "Y" 'eww-copy-page-url
       "I" 'eww-browse-with-external-browser))
-  (progn ;; git
-    (setq global-git-commit-mode t))
   ;; (progn ;; ipython
   ;;   (spacemacs/set-leader-keys
   ;;     "ay" 'ein:notebooklist-login
@@ -467,24 +475,15 @@
                                                 'face `(:foreground "royal blue"))
                                     (propertize " λ "'face `(:foreground "white")))))
     (evil-set-initial-state 'eshell-mode 'insert)
-    (defun eshell-new ()
-      "Open a new eshell."
-      (interactive)
-      (eshell 'N))
+    ;; (defun eshell-new ()
+    ;;   "Open a new eshell."
+    ;;   (interactive)
+    ;;   (eshell 'N))
     (spacemacs/set-leader-keys
       "`" 'ielm
-      "\"" 'eshell-new
+      ;; "\"" 'eshell-new
       "as" 'spacemacs/shell-pop-ansi-term))
-  (progn ;; windows
-    (setq scroll-margin 10)
-    (defun kill-buffer-and-window ()
-      "Kill the buffer and window."
-      (interactive)
-      (kill-this-buffer)
-      (delete-window))
-    (spacemacs/set-leader-keys
-      "wq" 'kill-buffer-and-window))
-  (progn ;; workspace
+  (progn ;; spacemacs
     (setq spacemacs-layouts-directory "~/.layouts/")
     (spacemacs/set-leader-keys "=" 'spacemacs/workspaces-transient-state/body))
   (progn ;; yasnippet
@@ -492,3 +491,17 @@
     (spacemacs/set-leader-keys
       "ir" 'yas-reload-all
       "is" 'yas/visit-snippet-file)))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (pdf-tools tablist yapfify xterm-color ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org stickyfunc-enhance srefactor spaceline smeargle shell-pop restart-emacs rainbow-delimiters racket-mode pyvenv pytest pyenv-mode py-isort popwin pip-requirements persp-mode pcre2el paradox ox-reveal ox-gfm orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets open-junk-file neotree nadvice multi-term move-text monokai-theme magit-gitflow magit-gh-pulls macrostep lv lorem-ipsum live-py-mode linum-relative link-hint indent-guide hy-mode hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-gitignore helm-flx helm-descbinds helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist fuzzy flyspell-correct-helm flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eshell-z eshell-prompt-extras esh-help engine-mode elisp-slime-nav ein dumb-jump disk-usage diminish diff-hl deft define-word cython-mode conda company-statistics company-quickhelp company-anaconda column-enforce-mode clojure-snippets clj-refactor clean-aindent-mode cider-eval-sexp-fu auto-yasnippet auto-highlight-symbol auto-dictionary atomic-chrome aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
