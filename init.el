@@ -10,7 +10,6 @@
    ;; Lazy installation of layers (i.e. layers are installed only when a file
    ;; with a supported type is opened). Possible values are `all', `unused'
    ;; and `nil'. `unused' will lazy install only unused layers (i.e. layers
-
    ;; not listed in variable `dotspacemacs-configuration-layers'), `all' will
    ;; lazy install any layer that support lazy installation even the layers
    ;; listed in `dotspacemacs-configuration-layers'. `nil' disable the lazy
@@ -30,47 +29,50 @@
    '((auto-completion :variables
                       ;; tips
                       auto-completion-enable-help-tooltip t
-                      auto-completion-enable-sort-by-usage t
+                      auto-completion-enable-sort-by-usage nil
                       ;; keys
                       auto-completion-tab-key-behavior nil
                       auto-completion-return-key-behavior nil
                       ;; snippets
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets")
-      clojure
-      emacs-lisp
-      deft
-      git
-      github
-      ;; ipython-notebook
-      (org :variables
-           org-enable-github-support t
-           org-enable-reveal-js-support t
-           org-projectile-file "~/Notes/TODO.org")
-      pdf-tools
-      (python :variables
-              python-test-runner 'pytest
-              python-auto-set-local-pyenv-version nil
-              python-auto-set-local-pyvenv-virtualenv nil)
-      racket
-      search-engine
-      semantic
-      (shell :variables
-              shell-default-height 30
-              shell-default-shell 'eshell
-              shell-default-full-span nil
-              shell-protect-eshell-prompt t
-              shell-default-position 'bottom)
-      (spell-checking :variables
-                      spell-checking-enable-by-default nil
-                      spell-checking-enable-auto-dictionary t)
-      (syntax-checking :variables
-                        syntax-checking-enable-tooltips t
-                        syntax-checking-enable-by-default t)
-      (version-control :variables
-                        version-control-global-margin t
-                        version-control-diff-tool 'diff-hl)
-      vinegar)
+     (clojure :variables
+              clojure-enable-fancify-symbols t)
+     csv
+     emacs-lisp
+     deft
+     git
+     github
+     html
+     ;; ipython-notebook
+     markdown
+     (org :variables
+          org-enable-github-support t
+          org-enable-reveal-js-support t
+          org-projectile-file "~/Notes/TODO.org")
+     plantuml
+     (python :variables
+             python-test-runner 'pytest)
+     racket
+     restclient
+     search-engine
+     (shell :variables
+            shell-default-height 30
+            shell-default-shell 'eshell
+            shell-default-full-span nil
+            shell-protect-eshell-prompt t
+            shell-default-position 'bottom)
+     (spell-checking :variables
+                     spell-checking-enable-by-default nil
+                     spell-checking-enable-auto-dictionary t)
+     sql
+     (syntax-checking :variables
+                      syntax-checking-enable-tooltips t
+                      syntax-checking-enable-by-default t)
+     (version-control :variables
+                      version-control-global-margin t
+                      version-control-diff-tool 'diff-hl)
+   vinegar)
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
@@ -149,10 +151,10 @@
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(leuven
+   dotspacemacs-themes '(tsdh-light
+                         tsdh-dark
                          monokai
-                         spacemacs-dark
-                         spacemacs-light)
+                         leuven)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
@@ -197,7 +199,7 @@
    ;; (default nil)
    dotspacemacs-ex-substitute-global t
    ;; Name of the default layout (default "Default")
-   dotspacemacs-default-layout-name "main"
+   dotspacemacs-default-layout-name "fmind"
    ;; If non nil the default layout name is displayed in the mode-line.
    ;; (default nil)
    dotspacemacs-display-default-layout t
@@ -230,7 +232,7 @@
    dotspacemacs-helm-use-fuzzy 'always
    ;; If non nil the paste micro-state is enabled. When enabled pressing `p`
    ;; several times cycle between the kill ring content. (default nil)
-   dotspacemacs-enable-paste-transient-state nil
+   dotspacemacs-enable-paste-transient-state t
    ;; Which-key delay in seconds. The which-key buffer is the popup listing
    ;; the commands bound to the current keystroke sequence. (default 0.4)
    dotspacemacs-which-key-delay 0.4
@@ -303,7 +305,7 @@
    dotspacemacs-highlight-delimiters 'all
    ;; If non nil, advise quit functions to keep server open when quitting.
    ;; (default nil)
-   dotspacemacs-persistent-server t
+   dotspacemacs-persistent-server nil
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
    ;; (default '("ag" "pt" "ack" "grep"))
@@ -326,13 +328,15 @@
 
 (defun dotspacemacs/user-config ()
   "Configuration function for user code."
-  (progn ;; atomic-chrome
-    (require 'atomic-chrome)
-    (atomic-chrome-start-server)
-    (setq atomic-chrome-buffer-open-style 'split
-          atomic-chrome-default-major-mode 'org-mode
-          atomic-chrome-url-major-mode-alist '(("github\\.com" . gfm-mode)
-                                               ("localhost" . python-mode))))
+  (use-package atomic-chrome
+    :defer t
+    :init
+    (progn
+      (atomic-chrome-start-server)
+      (setq atomic-chrome-buffer-open-style 'frame
+            atomic-chrome-default-major-mode 'org-mode
+            atomic-chrome-url-major-mode-alist '(("github\\.com" . gfm-mode)
+                                                 ("localhost" . python-mode)))))
   (progn ;; clojure
     (setq cider-save-file-on-load t
           cider-repl-use-pretty-printing t
@@ -344,10 +348,13 @@
       "a" 'cider-restart
       ";" 'cider-load-buffer
       "n" 'cider-repl-set-ns))
-  (progn ;; conda
-    (require 'conda)
-    (conda-env-initialize-eshell)
-    (conda-env-initialize-interactive-shells))
+  (use-package conda
+    :defer t
+    :init
+    (progn
+      (conda-env-initialize-interactive-shells)
+      (conda-env-autoactivate-mode t)
+      (conda-env-initialize-eshell)))
   (progn ;; deft
     (setq deft-directory "~/Notes/"
           deft-extensions '("org")))
@@ -359,7 +366,7 @@
     (global-hl-line-mode -1)
     (global-visual-line-mode t)
     (defun kill-buffer-and-window ()
-      "Kill the buffer and window."
+      "Kill the buffer with window."
       (interactive)
       (kill-this-buffer)
       (delete-window))
@@ -369,8 +376,8 @@
   (progn ;; evil
     (define-key evil-normal-state-map "gl" 'spacemacs/evil-search-clear-highlight))
   (progn ;; eww
-    (setq eww-search-prefix "https://duckduckgo.com/lite"
-          browse-url-browser-function 'eww-browse-url)
+    (setq browse-url-browser-function 'eww-browse-url
+          eww-search-prefix "https://duckduckgo.com/lite?q=")
     (spacemacs/set-leader-keys "." 'eww)
     (evil-define-key 'normal eww-mode-map
       "O" 'eww
@@ -389,26 +396,28 @@
       "[" 'eww-previous-url
       "Y" 'eww-copy-page-url
       "I" 'eww-browse-with-external-browser))
-  ;; (progn ;; ipython
+  ;; (progn ;; ipython-notebook
   ;;   (spacemacs/set-leader-keys
   ;;     "ay" 'ein:notebooklist-login
-  ;;     "ar" 'python-start-or-switch-repl))
-    ;; (spacemacs/set-leader-keys-for-major-mode 'ein:notebook-multilang-mode-map
-    ;;   "s" 'ein:notebook-save-notebook-command) ;; fix a bug in master version
-    ;; (evil-define-key 'hybrid ein:notebook-multilang-mode-map
-    ;;   (kbd "<C-return>") 'ein:worksheet-execute-cell
-    ;;   (kbd "<S-return>") 'ein:worksheet-execute-cell-and-goto-next))
-  ;; (progn ;; ispell
-  ;;   (setq ispell-dictionnary "en,fr"
-  ;;         ispell-program-name "hunspell"
-  ;;         ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff")
-  ;;                                             "fr" "~/.spacemacs.d/dicts/fr.aff")))
+  ;;     "ar" 'python-start-or-switch-repl)
+  ;;   (spacemacs/set-leader-keys-for-major-mode 'ein:notebook-multilang-mode-map
+  ;;     "s" 'ein:notebook-save-notebook-command) ;; fix a bug in master version
+  ;;   (evil-define-key 'hybrid ein:notebook-multilang-mode-map
+  ;;     (kbd "<C-return>") 'ein:worksheet-execute-cell
+  ;;     (kbd "<S-return>") 'ein:worksheet-execute-cell-and-goto-next))
+  (progn ;; ispell
+    (setq ispell-dictionnary "en,fr"
+          ispell-program-name "hunspell"
+          ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff")
+                                              "fr" "~/.spacemacs.d/dicts/fr.aff")))
+  (progn ;; mac
+    (setq mac-command-modifier 'control))
   (progn ;; magit
     (setq magit-repository-directories '(("~/Projects/" . 1))
           magit-repolist-columns '(("Name" 20 magit-repolist-column-ident ())
                                    ("Branch" 10 magit-repolist-column-branch ())
                                    ("Version" 12 magit-repolist-column-version ())
-                                   ;; ("D" 1 magit-repolist-column-dirty ())
+                                   ("D" 1 magit-repolist-column-dirty ())
                                    ("L<U" 3 magit-repolist-column-unpulled-from-upstream ((:right-align t)))
                                    ("L>U" 3 magit-repolist-column-unpushed-to-upstream ((:right-align t)))
                                    ("Path" 99 magit-repolist-column-path ())))
@@ -428,9 +437,6 @@
       "gq" 'magit-kill-all-buffers
       "gj" 'magit-list-repositories
       "ga" 'magit-fetch-all-repositories))
-  (progn ;; pdf
-    (setq pdf-view-incompatible-modes '())
-    (add-hook 'pdf-view-mode-hook (lambda() (linum-mode -1))))
   (progn ;; proced
     (spacemacs/set-leader-keys "at" 'proced)
     (add-hook 'proced-mode-hook (lambda nil (proced-toggle-auto-update 1))))
@@ -438,14 +444,8 @@
     (setq projectile-switch-project-action 'projectile-dired))
   (progn ;; prompt
     (fset 'yes-or-no-p 'y-or-n-p))
-  ;; (progn ;; python
-  ;;   (setq python-shell-interpreter "ipython")
-    ;; (defun my-set-project-virtualenv ()
-    ;;   "Set the project virtualenv."
-    ;;   (interactive)
-    ;;   (when-let ((project-path (locate-dominating-file default-directory "venv")))
-    ;;     (pyvenv-activate (concat project-path "venv"))))
-    ;; (add-hook 'python-mode-hook 'my-set-project-virtualenv))
+  (progn ;; python
+    (setq python-shell-interpreter "ipython"))
   (progn ;; racket
     (evil-set-initial-state 'racket-repl-mode 'insert)
     (spacemacs/set-leader-keys-for-major-mode 'racket-mode
@@ -476,27 +476,23 @@
                                                 'face `(:foreground "royal blue"))
                                     (propertize " λ "'face `(:foreground "black")))))
     (evil-set-initial-state 'eshell-mode 'insert)
-    ;; (defun eshell-new ()
-    ;;   "Open a new eshell."
-    ;;   (interactive)
-    ;;   (eshell 'N))
     (spacemacs/set-leader-keys
       "`" 'ielm
-      ;; "\"" 'eshell-new
       "as" 'spacemacs/shell-pop-ansi-term))
   (progn ;; spacemacs
-    (setq spacemacs-layouts-directory "~/.layouts/")
+    (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/")
     (defun switch-to-messages-buffer ()
       (interactive)
       (switch-to-buffer "*Messages*"))
     (spacemacs/set-leader-keys
-      "bM" 'switch-to-messages-buffer
+      "b!" 'switch-to-messages-buffer
       "=" 'spacemacs/workspaces-transient-state/body))
   (progn ;; yasnippet
     (setq yas-snippet-dirs '("~/.spacemacs.d/snippets"))
     (spacemacs/set-leader-keys
       "ir" 'yas-reload-all
       "is" 'yas/visit-snippet-file)))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -504,7 +500,8 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (yapfify xterm-color stickyfunc-enhance srefactor smeargle shell-pop racket-mode faceup pyvenv pytest pyenv-mode py-isort pip-requirements pdf-tools tablist ox-reveal ox-gfm orgit org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download multi-term magit-gitflow magit-popup magit-gh-pulls live-py-mode hy-mode dash-functional htmlize helm-pydoc helm-gitignore helm-company helm-c-yasnippet gnuplot gitignore-mode github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gist gh marshal logito pcache ht fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip flycheck evil-magit magit git-commit with-editor transient eshell-z eshell-prompt-extras esh-help engine-mode disk-usage diff-hl deft cython-mode conda company-statistics company-quickhelp pos-tip company-anaconda company clojure-snippets clj-refactor inflections multiple-cursors paredit cider-eval-sexp-fu cider sesman queue parseedn clojure-mode parseclj a auto-yasnippet yasnippet auto-dictionary atomic-chrome websocket anaconda-mode pythonic ac-ispell auto-complete ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu elisp-slime-nav dumb-jump diminish define-word column-enforce-mode clean-aindent-mode auto-highlight-symbol auto-compile aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line))))
+    (ein polymode deferred anaphora sql-indent restclient-helm ob-restclient ob-http csv-mode company-restclient restclient know-your-http-well yapfify xterm-color ws-butler winum which-key web-mode volatile-highlights vi-tilde-fringe uuidgen use-package toc-org tagedit stickyfunc-enhance srefactor spaceline smeargle slim-mode shell-pop scss-mode sass-mode reveal-in-osx-finder restart-emacs rainbow-delimiters racket-mode pyvenv pytest pyenv-mode py-isort pug-mode popwin plantuml-mode pip-requirements persp-mode pdf-tools pcre2el pbcopy paradox ox-reveal ox-gfm osx-trash osx-dictionary orgit org-projectile org-present org-pomodoro org-mime org-download org-bullets open-junk-file neotree multi-term move-text mmm-mode markdown-toc magit-gitflow magit-gh-pulls macrostep lorem-ipsum live-py-mode linum-relative link-hint launchctl indent-guide hy-mode hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-gitignore helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot github-search github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md fuzzy flyspell-correct-helm flycheck-pos-tip flx-ido fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eshell-z eshell-prompt-extras esh-help engine-mode emmet-mode elisp-slime-nav dumb-jump disk-usage diminish diff-hl deft define-word cython-mode conda company-web company-statistics company-quickhelp company-anaconda column-enforce-mode clojure-snippets clj-refactor clean-aindent-mode cider-eval-sexp-fu auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile atomic-chrome aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
