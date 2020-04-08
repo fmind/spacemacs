@@ -445,7 +445,9 @@
   (progn ;; prompt
     (fset 'yes-or-no-p 'y-or-n-p))
   (progn ;; python
-    (setq python-shell-interpreter "ipython"))
+    (setq python-shell-interpreter "ipython")
+    (spacemacs/set-leader-keys-for-major-mode 'python-mode
+      ";" 'python-shell-send-buffer))
   (progn ;; racket
     (evil-set-initial-state 'racket-repl-mode 'insert)
     (spacemacs/set-leader-keys-for-major-mode 'racket-mode
