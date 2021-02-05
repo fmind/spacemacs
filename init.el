@@ -635,7 +635,7 @@ before packages are loaded."
       (dolist (repo (magit-list-repos))
         (let ((default-directory repo))
           (magit-fetch-all (magit-fetch-arguments)))))
-    (spacemacs/set-leader-key
+    (spacemacs/set-leader-keys
       "gq" 'magit-kill-all-buffers
       "gj" 'magit-list-repositories
       "ga" 'magit-fetch-all-repositories))
@@ -645,9 +645,9 @@ before packages are loaded."
     (spacemacs/set-leader-keys "at" 'proced)
     (add-hook 'proced-mode-hook (lambda nil (proced-toggle-auto-update 1))))
   (progn ;; projectile
-    (setq projectile-switch-project-action 'projectile-dired)
-    (mapc #'projectile-add-known-project
-          (mapcar #'file-name-as-directory (magit-list-repos))))
+    (setq projectile-switch-project-action 'projectile-dired))
+    ;; (mapc #'projectile-add-known-project
+    ;;       (mapcar #'file-name-as-directory (magit-list-repos))))
   (progn ;; prompt
     (fset 'yes-or-no-p 'y-or-n-p))
   (progn ;; python
