@@ -83,6 +83,7 @@ This function should only modify configuration layer settings."
           org-enable-reveal-js-support t
           org-projectile-file "~/Notes/TODO.org")
      pandoc
+     parinfer
      pdf
      (plantuml :variables
                plantuml-jar-path "/usr/bin/plantuml"
