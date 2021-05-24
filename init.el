@@ -42,7 +42,7 @@ This function should only modify configuration layer settings."
      (auto-completion :variables
                       ;; tips
                       auto-completion-enable-help-tooltip t
-                      auto-completion-enable-sort-by-usage nil
+                      auto-completion-enable-sort-by-usage t
                       ;; keys
                       auto-completion-tab-key-behavior nil
                       auto-completion-return-key-behavior nil
@@ -52,8 +52,14 @@ This function should only modify configuration layer settings."
                       ;; snippets
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets")
-     better-defaults
+     (better-defaults :variables
+                      better-defaults-move-to-end-of-code-first t
+                      better-defaults-move-to-beginning-of-code-first t)
      bm
+     (clojure :variables
+              clojure-enable-fancify-symbols t
+              clojure-enable-linters '(clj-kondo))
+     command-log
      copy-as-format
      csv
      deft
@@ -61,62 +67,73 @@ This function should only modify configuration layer settings."
      emacs-lisp
      evil-commentary
      evil-snipe
-     fasd
+     eww
      git
      github
      graphviz
      helm
      helpful
+     hy
+     (ipython-notebook :variables
+                       ein-backend 'jupyter)
      json
      markdown
      (org :variables
           org-enable-github-support t
           org-enable-reveal-js-support t
           org-projectile-file "~/Notes/TODO.org")
+     pandoc
      pdf
-     plantuml
+     (plantuml :variables
+               plantuml-jar-path "/usr/bin/plantuml"
+               org-plantuml-jar-path "/usr/bin/plantuml")
      prodigy
      (python :variables
              python-backend 'anaconda
              python-formatter 'black
              python-test-runner 'pytest
              python-save-before-test t)
-     racket
+     quickurl
      restclient
+     restructuredtext
      search-engine
+     semantic
      (shell :variables
+            close-window-with-terminal t
             shell-default-height 30
-            shell-default-shell 'eshell
+            shell-default-shell 'ansi-term
             shell-default-full-span nil
             shell-protect-eshell-prompt t
             shell-default-position 'bottom
-            shell-default-term-shell "/bin/bash"
-            close-window-with-terminal t)
+            shell-default-term-shell "/usr/bin/fish")
      shell-scripts
      speed-reading
      (spell-checking :variables
+                     enable-flyspell-auto-completion t
                      spell-checking-enable-by-default nil
                      spell-checking-enable-auto-dictionary nil)
      (sql :variables
+          sql-auto-indent t
           sql-capitalize-keywords t)
-     syntax-checking
      (syntax-checking :variables
                      syntax-checking-enable-tooltips t
                      syntax-checking-enable-by-default t)
      systemd
      (templates :variables
+                templates-use-default-templates t
                 templates-private-directory "~/.spacemacs.d/templates")
      terraform
      tmux
-     treemacs
+     (treemacs :variables
+               treemacs-use-follow-mode t
+               treemacs-use-filewatch-mode t)
      (version-control :variables
                       version-control-global-margin t)
      (vinegar :variables
-              vinegar-reuse-dired-buffer nil
-              vinegar-dired-hide-details nil)
+              vinegar-dired-hide-details nil
+              vinegar-reuse-dired-buffer nil)
      xclipboard
      yaml)
-
 
    ;; List of additional packages that will be installed without being wrapped
    ;; in a layer (generally the packages are installed only and should still be
@@ -141,7 +158,7 @@ This function should only modify configuration layer settings."
    ;; installs only the used packages but won't delete unused ones. `all'
    ;; installs *all* packages supported by Spacemacs and never uninstalls them.
    ;; (default is `used-only')
-   dotspacemacs-install-packages 'used-but-keep-unused))
+   dotspacemacs-install-packages 'used-only))
 
 (defun dotspacemacs/init ()
   "Initialization:
@@ -258,6 +275,12 @@ It should only modify the values of Spacemacs settings."
    ;; True if the home buffer should respond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
 
+   ;; Show numbers before the startup list lines. (default t)
+   dotspacemacs-show-startup-list-numbers t
+
+   ;; The minimum delay in seconds between number key presses. (default 0.4)
+   dotspacemacs-startup-buffer-multi-digit-delay 0.4
+
    ;; Default major mode for a new empty buffer. Possible values are mode
    ;; names such as `text-mode'; and `nil' to use Fundamental mode.
    ;; (default `text-mode')
@@ -281,8 +304,7 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(monokai
-                         leuven)
+   dotspacemacs-themes '(monokai leuven)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -330,6 +352,12 @@ It should only modify the values of Spacemacs settings."
    ;; C-M-m also should work in terminal mode, but not in GUI mode.
    dotspacemacs-major-mode-emacs-leader-key "M-;"
 
+   ;; Major mode leader key accessible in `emacs state' and `insert state'.
+   ;; (default "C-M-m" for terminal mode, "<M-return>" for GUI mode).
+   ;; Thus M-RET should work as leader key in both GUI and terminal modes.
+   ;; C-M-m also should work in terminal mode, but not in GUI mode.
+   dotspacemacs-major-mode-emacs-leader-key (if window-system "<M-return>" "C-M-m")
+
    ;; These variables control whether separate commands are bound in the GUI to
    ;; the key pairs `C-i', `TAB' and `C-m', `RET'.
    ;; Setting it to a non-nil value, allows for separate commands under `C-i'
@@ -339,7 +367,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-distinguish-gui-tab nil
 
    ;; Name of the default layout (default "Default")
-   dotspacemacs-default-layout-name "fmind"
+   dotspacemacs-default-layout-name "default"
 
    ;; If non-nil the default layout name is displayed in the mode-line.
    ;; (default nil)
@@ -437,6 +465,10 @@ It should only modify the values of Spacemacs settings."
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
    dotspacemacs-smooth-scrolling t
+
+   ;; Show the scroll bar while scrolling. The auto hide time can be configured
+   ;; by setting this variable to a number. (default t)
+   dotspacemacs-scroll-bar-while-scrolling nil
 
    ;; Control line numbers activation.
    ;; If set to `t', `relative' or `visual' then line numbers are enabled in all
@@ -538,6 +570,9 @@ It should only modify the values of Spacemacs settings."
    ;; (default t)
    dotspacemacs-use-clean-aindent-mode t
 
+   ;; Accept SPC as y for prompts if non nil. (default nil)
+   dotspacemacs-use-SPC-as-y nil
+
    ;; If non-nil shift your number row to match the entered keyboard layout
    ;; (only in insert state). Currently supported keyboard layouts are:
    ;; `qwerty-us', `qwertz-de' and `querty-ca-fr'.
@@ -598,7 +633,7 @@ before packages are loaded."
     (setq copy-as-format-default "markdown"))
   (progn ;; deft
     (setq deft-directory "~/Notes/"
-          deft-extensions '("org")))
+          deft-extensions '("org" "md" "txt")))
   (progn ;; disk-usage
     (spacemacs/set-leader-keys "af" 'disk-usage))
   (progn ;; emacs
@@ -615,7 +650,11 @@ before packages are loaded."
       "wq" 'kill-buffer-and-window)
     (add-hook 'focus-out-hook (lambda () (save-some-buffers t))))
   (progn ;; evil
+    (define-key evil-motion-state-map (kbd "RET") 'evil-ex)
     (define-key evil-normal-state-map "gl" 'spacemacs/evil-search-clear-highlight))
+  (progn ;; eww
+    (spacemacs/set-leader-keys
+      "a." 'eww))
   (progn ;; ispell
     (setq ispell-dictionnary "en,fr"
           ispell-program-name "hunspell"
@@ -646,8 +685,6 @@ before packages are loaded."
     (add-hook 'proced-mode-hook (lambda nil (proced-toggle-auto-update 1))))
   (progn ;; projectile
     (setq projectile-switch-project-action 'projectile-dired))
-    ;; (mapc #'projectile-add-known-project
-    ;;       (mapcar #'file-name-as-directory (magit-list-repos))))
   (progn ;; prompt
     (fset 'yes-or-no-p 'y-or-n-p))
   (progn ;; python
@@ -685,9 +722,8 @@ before packages are loaded."
     (evil-set-initial-state 'eshell-mode 'insert)
     (spacemacs/set-leader-keys
       "`" 'ielm
-      "'" 'eshell
-      "\"" 'spacemacs/default-pop-shell
-      "as" 'spacemacs/shell-pop-ansi-term))
+      "'" 'spacemacs/default-pop-shell
+      "\"" (lambda () (interactive) (ansi-term "fish"))))
   (progn ;; spacemacs
     (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/")
     (spacemacs/set-leader-keys
@@ -700,3 +736,24 @@ before packages are loaded."
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(evil-want-Y-yank-to-eol nil)
+ '(package-selected-packages
+   (quote
+    (helm-cider cider sesman seq flycheck-clj-kondo ein polymode anaphora websocket clojure-snippets cider-eval-sexp-fu queue parseedn clojure-mode parseclj a texfrag centaur-tabs auctex ob-hy hy-mode dash-functional flyspell-popup yatemplate yasnippet-snippets yapfify yaml-mode xterm-color ws-butler writeroom-mode winum which-key web-mode web-beautify vterm volatile-highlights vi-tilde-fringe uuidgen use-package unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org terminal-here tagedit systemd symon symbol-overlay string-inflection string-edit stickyfunc-enhance srefactor sqlup-mode sql-indent spray sphinx-doc spaceline-all-the-icons smeargle slim-mode shell-pop scss-mode sass-mode restclient-helm restart-emacs rainbow-delimiters quickrun pytest pyenv-mode py-isort pug-mode prodigy prettier-js popwin poetry plantuml-mode pippel pipenv pip-requirements persistent-scratch pdf-view-restore pcre2el password-generator paradox pandoc-mode ox-pandoc ox-gfm overseer orgit-forge org-superstar org-rich-yank org-re-reveal org-projectile org-present org-pomodoro org-mime org-download org-cliplink org-brain open-junk-file ob-restclient ob-http nose nameless mwim multi-term multi-line monokai-theme mmm-mode markdown-toc magit-section macrostep lorem-ipsum live-py-mode link-hint keycast json-navigator jinja2-mode insert-shebang indent-guide importmagic impatient-mode hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helpful helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-ls-git helm-gitignore helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag grip-mode graphviz-dot-mode google-translate golden-ratio gnuplot gitignore-templates github-search github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ gist gh-md fuzzy font-lock+ flyspell-correct-helm flycheck-pos-tip flycheck-package flycheck-elsa flycheck-bashate flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-snipe evil-org evil-numbers evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-easymotion evil-commentary evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help engine-mode emr emmet-mode elisp-slime-nav editorconfig dumb-jump drag-stuff dotenv-mode dockerfile-mode docker disk-usage dired-quick-sort diminish devdocs deft define-word cython-mode csv-mode copy-as-format company-web company-terraform company-shell company-restclient company-quickhelp company-ansible company-anaconda command-log-mode column-enforce-mode clean-aindent-mode centered-cursor-mode browse-at-remote bm blacken auto-yasnippet auto-highlight-symbol auto-dictionary ansible-doc ansible aggressive-indent ace-link ace-jump-helm-line ac-ispell))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)
