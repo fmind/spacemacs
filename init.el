@@ -629,6 +629,17 @@ before packages are loaded."
   (progn ;; bm
     (spacemacs/set-leader-keys
       "m" 'spacemacs/bm-transient-state/body))
+  (progn ;; clojure
+    (setq cider-save-file-on-load t
+          cider-repl-use-pretty-printing t
+          cider-repl-display-help-banner nil
+          cider-repl-history-file "~/.cider.log"
+          cider-show-error-buffer 'except-in-repl
+          cider-repl-pop-to-buffer-on-connect 'display-only)
+    (spacemacs/set-leader-keys-for-major-mode 'clojure-mode
+      "a" 'cider-restart
+      ";" 'cider-load-buffer
+      "n" 'cider-repl-set-ns))
   (progn ;; copy-as-format
     (setq copy-as-format-default "markdown"))
   (progn ;; deft
