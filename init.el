@@ -102,11 +102,11 @@ This function should only modify configuration layer settings."
      (shell :variables
             close-window-with-terminal t
             shell-default-height 30
-            shell-default-shell 'ansi-term
+            shell-default-shell 'eshell
             shell-default-full-span nil
             shell-protect-eshell-prompt t
             shell-default-position 'bottom
-            shell-default-term-shell "/usr/bin/fish")
+            shell-default-term-shell "fish")
      shell-scripts
      speed-reading
      (spell-checking :variables
@@ -618,8 +618,8 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   "Library to load while dumping.
 This function is called only while dumping Spacemacs configuration. You can
 `require' or `load' the libraries of your choice that will be included in the
-dump."
-)
+dump.")
+
 
 (defun dotspacemacs/user-config ()
   "Configuration for user code:
@@ -671,7 +671,7 @@ before packages are loaded."
     (setq ispell-dictionnary "en,fr"
           ispell-program-name "hunspell"
           ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff")
-                                              "fr" "~/.spacemacs.d/dicts/fr.aff")))
+                                             "fr" "~/.spacemacs.d/dicts/fr.aff")))
   (progn ;; magit
     (setq magit-repository-directories '(("~/Projects/" . 2)))
     (defun magit-kill-all-buffers ()
@@ -721,21 +721,12 @@ before packages are loaded."
         ".y" 'engine/search-pip))
   (progn ;; shell
     (setq eshell-banner-message ""
-          eshell-prompt-function (lambda nil
-                                   (concat
-                                    (propertize (user-login-name) 'face `(:foreground "red"))
-                                    (propertize " at " 'face `(:foreground "white"))
-                                    (propertize (system-name) 'face `(:foreground "green"))
-                                    (propertize " in " 'face `(:foreground "white"))
-                                    (propertize (if (string= (eshell/pwd) (getenv "HOME"))
-                                                    "~" (eshell/basename (eshell/pwd)))
-                                                'face `(:foreground "royal blue"))
-                                    (propertize " λ "'face `(:foreground "white")))))
+          eshell-prompt-function 'epe-theme-lambda)
     (evil-set-initial-state 'eshell-mode 'insert)
     (spacemacs/set-leader-keys
       "`" 'ielm
-      "'" 'spacemacs/default-pop-shell
-      "\"" (lambda () (interactive) (ansi-term "fish"))))
+      "\"" 'eshell
+      "'" 'spacemacs/default-pop-shell))
   (progn ;; spacemacs
     (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/")
     (spacemacs/set-leader-keys
@@ -753,19 +744,19 @@ before packages are loaded."
 This is an auto-generated function, do not modify its content directly, use
 Emacs customize menu instead.
 This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(evil-want-Y-yank-to-eol nil)
- '(package-selected-packages
-   (quote
-    (helm-cider cider sesman seq flycheck-clj-kondo ein polymode anaphora websocket clojure-snippets cider-eval-sexp-fu queue parseedn clojure-mode parseclj a texfrag centaur-tabs auctex ob-hy hy-mode dash-functional flyspell-popup yatemplate yasnippet-snippets yapfify yaml-mode xterm-color ws-butler writeroom-mode winum which-key web-mode web-beautify vterm volatile-highlights vi-tilde-fringe uuidgen use-package unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org terminal-here tagedit systemd symon symbol-overlay string-inflection string-edit stickyfunc-enhance srefactor sqlup-mode sql-indent spray sphinx-doc spaceline-all-the-icons smeargle slim-mode shell-pop scss-mode sass-mode restclient-helm restart-emacs rainbow-delimiters quickrun pytest pyenv-mode py-isort pug-mode prodigy prettier-js popwin poetry plantuml-mode pippel pipenv pip-requirements persistent-scratch pdf-view-restore pcre2el password-generator paradox pandoc-mode ox-pandoc ox-gfm overseer orgit-forge org-superstar org-rich-yank org-re-reveal org-projectile org-present org-pomodoro org-mime org-download org-cliplink org-brain open-junk-file ob-restclient ob-http nose nameless mwim multi-term multi-line monokai-theme mmm-mode markdown-toc magit-section macrostep lorem-ipsum live-py-mode link-hint keycast json-navigator jinja2-mode insert-shebang indent-guide importmagic impatient-mode hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helpful helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-ls-git helm-gitignore helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag grip-mode graphviz-dot-mode google-translate golden-ratio gnuplot gitignore-templates github-search github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ gist gh-md fuzzy font-lock+ flyspell-correct-helm flycheck-pos-tip flycheck-package flycheck-elsa flycheck-bashate flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-snipe evil-org evil-numbers evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-easymotion evil-commentary evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help engine-mode emr emmet-mode elisp-slime-nav editorconfig dumb-jump drag-stuff dotenv-mode dockerfile-mode docker disk-usage dired-quick-sort diminish devdocs deft define-word cython-mode csv-mode copy-as-format company-web company-terraform company-shell company-restclient company-quickhelp company-ansible company-anaconda command-log-mode column-enforce-mode clean-aindent-mode centered-cursor-mode browse-at-remote bm blacken auto-yasnippet auto-highlight-symbol auto-dictionary ansible-doc ansible aggressive-indent ace-link ace-jump-helm-line ac-ispell))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-)
+ (custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+  '(evil-want-Y-yank-to-eol nil)
+  '(package-selected-packages
+    (quote
+     (helm-cider cider sesman seq flycheck-clj-kondo ein polymode anaphora websocket clojure-snippets cider-eval-sexp-fu queue parseedn clojure-mode parseclj a texfrag centaur-tabs auctex ob-hy hy-mode dash-functional flyspell-popup yatemplate yasnippet-snippets yapfify yaml-mode xterm-color ws-butler writeroom-mode winum which-key web-mode web-beautify vterm volatile-highlights vi-tilde-fringe uuidgen use-package unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org terminal-here tagedit systemd symon symbol-overlay string-inflection string-edit stickyfunc-enhance srefactor sqlup-mode sql-indent spray sphinx-doc spaceline-all-the-icons smeargle slim-mode shell-pop scss-mode sass-mode restclient-helm restart-emacs rainbow-delimiters quickrun pytest pyenv-mode py-isort pug-mode prodigy prettier-js popwin poetry plantuml-mode pippel pipenv pip-requirements persistent-scratch pdf-view-restore pcre2el password-generator paradox pandoc-mode ox-pandoc ox-gfm overseer orgit-forge org-superstar org-rich-yank org-re-reveal org-projectile org-present org-pomodoro org-mime org-download org-cliplink org-brain open-junk-file ob-restclient ob-http nose nameless mwim multi-term multi-line monokai-theme mmm-mode markdown-toc magit-section macrostep lorem-ipsum live-py-mode link-hint keycast json-navigator jinja2-mode insert-shebang indent-guide importmagic impatient-mode hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helpful helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-ls-git helm-gitignore helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag grip-mode graphviz-dot-mode google-translate golden-ratio gnuplot gitignore-templates github-search github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ gist gh-md fuzzy font-lock+ flyspell-correct-helm flycheck-pos-tip flycheck-package flycheck-elsa flycheck-bashate flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-snipe evil-org evil-numbers evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-easymotion evil-commentary evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help engine-mode emr emmet-mode elisp-slime-nav editorconfig dumb-jump drag-stuff dotenv-mode dockerfile-mode docker disk-usage dired-quick-sort diminish devdocs deft define-word cython-mode csv-mode copy-as-format company-web company-terraform company-shell company-restclient company-quickhelp company-ansible company-anaconda command-log-mode column-enforce-mode clean-aindent-mode centered-cursor-mode browse-at-remote bm blacken auto-yasnippet auto-highlight-symbol auto-dictionary ansible-doc ansible aggressive-indent ace-link ace-jump-helm-line ac-ispell))))
+ (custom-set-faces))
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ 
+
