@@ -48,7 +48,7 @@ This function should only modify configuration layer settings."
                       auto-completion-return-key-behavior nil
                       auto-completion-complete-with-key-sequence nil
                       ;; limit
-                      auto-completion-minimum-prefix-length 2
+                      auto-completion-minimum-prefix-length 1
                       ;; snippets
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets")
@@ -57,8 +57,7 @@ This function should only modify configuration layer settings."
                       better-defaults-move-to-beginning-of-code-first t)
      bm
      (clojure :variables
-              clojure-enable-fancify-symbols t
-              clojure-enable-linters '(clj-kondo))
+              clojure-enable-fancify-symbols t)
      command-log
      copy-as-format
      csv
@@ -100,13 +99,13 @@ This function should only modify configuration layer settings."
      search-engine
      semantic
      (shell :variables
-            close-window-with-terminal t
+            close-window-with-terminal nil
+            shell-default-full-span t
             shell-default-height 30
-            shell-default-shell 'eshell
-            shell-default-full-span nil
-            shell-protect-eshell-prompt t
             shell-default-position 'bottom
-            shell-default-term-shell "fish")
+            shell-default-shell 'eshell
+            shell-default-term-shell "fish"
+            shell-protect-eshell-prompt t)
      shell-scripts
      speed-reading
      (spell-checking :variables
@@ -296,7 +295,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil, `kill-buffer' on *scratch* buffer
    ;; will bury it instead of killing.
-   dotspacemacs-scratch-buffer-unkillable nil
+   dotspacemacs-scratch-buffer-unkillable t
 
    ;; Initial message in the scratch buffer, such as "Welcome to Spacemacs!"
    ;; (default nil)
@@ -368,7 +367,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-distinguish-gui-tab nil
 
    ;; Name of the default layout (default "Default")
-   dotspacemacs-default-layout-name "default"
+   dotspacemacs-default-layout-name "main"
 
    ;; If non-nil the default layout name is displayed in the mode-line.
    ;; (default nil)
@@ -421,7 +420,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil a progress bar is displayed when spacemacs is loading. This
    ;; may increase the boot time on some systems and emacs builds, set it to
    ;; nil to boost the loading time. (default t)
-   dotspacemacs-loading-progress-bar nil
+   dotspacemacs-loading-progress-bar t
 
    ;; If non-nil the frame is fullscreen when Emacs starts up. (default nil)
    ;; (Emacs 24.4+ only)
@@ -444,12 +443,12 @@ It should only modify the values of Spacemacs settings."
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
-   dotspacemacs-active-transparency 90
+   dotspacemacs-active-transparency 66
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's inactive or deselected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
-   dotspacemacs-inactive-transparency 90
+   dotspacemacs-inactive-transparency 66
 
    ;; If non-nil show the titles of transient states. (default t)
    dotspacemacs-show-transient-state-title t
@@ -620,7 +619,6 @@ This function is called only while dumping Spacemacs configuration. You can
 `require' or `load' the libraries of your choice that will be included in the
 dump.")
 
-
 (defun dotspacemacs/user-config ()
   "Configuration for user code:
 This function is called at the very end of Spacemacs startup, after layer
@@ -629,7 +627,7 @@ Put your configuration code here, except for variables that should be set
 before packages are loaded."
   (progn ;; bm
     (spacemacs/set-leader-keys
-      "m" 'spacemacs/bm-transient-state/body))
+      "ab" 'spacemacs/bm-transient-state/body))
   (progn ;; clojure
     (setq cider-save-file-on-load t
           cider-repl-use-pretty-printing t
@@ -665,15 +663,17 @@ before packages are loaded."
     (define-key evil-motion-state-map (kbd "RET") 'evil-ex)
     (define-key evil-normal-state-map "gl" 'spacemacs/evil-search-clear-highlight))
   (progn ;; eww
+    (setq eww-search-prefix "https://www.google.com/search?q=")
     (spacemacs/set-leader-keys
-      "a." 'eww))
+      "a." 'eww
+      "ag" 'helm-google-suggest))
   (progn ;; ispell
     (setq ispell-dictionnary "en,fr"
           ispell-program-name "hunspell"
           ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff")
                                              "fr" "~/.spacemacs.d/dicts/fr.aff")))
   (progn ;; magit
-    (setq magit-repository-directories '(("~/Projects/" . 2)))
+    (setq magit-repository-directories '(("~/Projects/" . 1)))
     (defun magit-kill-all-buffers ()
       "Kill all alive magit buffers."
       (interactive)
@@ -703,11 +703,6 @@ before packages are loaded."
     (setq python-shell-interpreter "ipython")
     (spacemacs/set-leader-keys-for-major-mode 'python-mode
       ";" 'python-shell-send-buffer))
-  (progn ;; racket
-    (evil-set-initial-state 'racket-repl-mode 'insert)
-    (spacemacs/set-leader-keys-for-major-mode 'racket-mode
-      ";" 'racket-run
-      ":" 'racket-run-and-switch-to-repl))
   (progn ;; search-engine
     (engine-mode t)
     (defengine thesaurus "https://thesaurus.com/browse/%s")
@@ -730,7 +725,7 @@ before packages are loaded."
   (progn ;; spacemacs
     (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/")
     (spacemacs/set-leader-keys
-      "=" 'spacemacs/workspaces-transient-state/body))
+      "w" 'spacemacs/workspaces-transient-state/body))
   (progn ;; yasnippet
     (setq yas-snippet-dirs '("~/.spacemacs.d/snippets"))
     (spacemacs/set-leader-keys
@@ -758,5 +753,4 @@ This function is called at the very end of Spacemacs initialization."
   ;; If you edit it by hand, you could mess it up, so be careful.
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
- 
 
