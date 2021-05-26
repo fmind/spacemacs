@@ -683,7 +683,8 @@ before packages are loaded."
   (progn ;; layouts
     (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/"))
   (progn ;; magit
-    (setq magit-repository-directories '(("~/projects/" . 1)
+    (setq git-magit-status-fullscreen t
+          magit-repository-directories '(("~/projects/" . 1)
                                          ("~/Projects/" . 1)))
     (defun magit-kill-all-buffers ()
       "Kill all alive magit buffers."
