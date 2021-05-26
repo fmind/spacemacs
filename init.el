@@ -149,7 +149,7 @@ This function should only modify configuration layer settings."
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '(auto-compile)
+   dotspacemacs-excluded-packages '()
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -627,7 +627,22 @@ Put your configuration code here, except for variables that should be set
 before packages are loaded."
   (progn ;; bm
     (spacemacs/set-leader-keys
-      "ab" 'spacemacs/bm-transient-state/body))
+      "-" 'spacemacs/bm-transient-state/body))
+  (progn ;; buffers
+    (setq scroll-margin 10)
+    (defun kill-buffer-and-window ()
+      "Kill the buffer with window."
+      (interactive)
+      (kill-this-buffer)
+      (delete-window))
+    (defun kill-all-special-buffers ()
+      "Kill all emacs special buffers."
+      (interactive)
+      (kill-matching-buffers "^\\*.*\\*$" nil t))
+    (spacemacs/set-leader-keys
+      "wq" 'kill-buffer-and-window
+      "oq" 'kill-all-special-buffers)
+    (add-hook 'focus-out-hook (lambda () (save-some-buffers t))))
   (progn ;; clojure
     (setq cider-save-file-on-load t
           cider-repl-use-pretty-printing t
@@ -639,41 +654,38 @@ before packages are loaded."
       "a" 'cider-restart
       ";" 'cider-load-buffer
       "n" 'cider-repl-set-ns))
+  (progn ;; confirm
+    (fset 'yes-or-no-p 'y-or-n-p)
+    (setq confirm-nonexistent-file-or-buffer nil))
+  (progn ;; compilation
+    (setq compilation-ask-about-save nil)
+          compilation-save-buffers-predicate '(lambda () nil))
   (progn ;; copy-as-format
     (setq copy-as-format-default "markdown"))
   (progn ;; deft
     (setq deft-directory "~/Notes/"
-          deft-extensions '("org" "md" "txt")))
+          deft-extensions '("org" "md" "txt"))
+    (spacemacs/set-leader-keys
+      "an" 'spacemacs/deft))
   (progn ;; disk-usage
     (spacemacs/set-leader-keys "af" 'disk-usage))
-  (progn ;; emacs
-    (setq scroll-margin 10)
-    (global-company-mode t)
-    (global-hl-line-mode -1)
-    (global-visual-line-mode t)
-    (defun kill-buffer-and-window ()
-      "Kill the buffer with window."
-      (interactive)
-      (kill-this-buffer)
-      (delete-window))
-    (spacemacs/set-leader-keys
-      "wq" 'kill-buffer-and-window)
-    (add-hook 'focus-out-hook (lambda () (save-some-buffers t))))
   (progn ;; evil
     (define-key evil-motion-state-map (kbd "RET") 'evil-ex)
     (define-key evil-normal-state-map "gl" 'spacemacs/evil-search-clear-highlight))
   (progn ;; eww
-    (setq eww-search-prefix "https://www.google.com/search?q=")
+    (setq eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
     (spacemacs/set-leader-keys
-      "a." 'eww
-      "ag" 'helm-google-suggest))
-  (progn ;; ispell
-    (setq ispell-dictionnary "en,fr"
-          ispell-program-name "hunspell"
-          ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff")
-                                             "fr" "~/.spacemacs.d/dicts/fr.aff")))
+      ".." 'eww
+      ".j" 'helm-google-suggest))
+  (progn ;; global
+    (global-company-mode t)
+    (global-hl-line-mode -1)
+    (global-visual-line-mode t))
+  (progn ;; layouts
+    (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/"))
   (progn ;; magit
-    (setq magit-repository-directories '(("~/Projects/" . 1)))
+    (setq magit-repository-directories '(("~/projects/" . 1)
+                                         ("~/Projects/" . 1)))
     (defun magit-kill-all-buffers ()
       "Kill all alive magit buffers."
       (interactive)
@@ -688,17 +700,13 @@ before packages are loaded."
           (magit-fetch-all (magit-fetch-arguments)))))
     (spacemacs/set-leader-keys
       "gq" 'magit-kill-all-buffers
-      "gj" 'magit-list-repositories
       "ga" 'magit-fetch-all-repositories))
   (progn ;; osx
     (setq mac-command-modifier 'control))
   (progn ;; proced
-    (spacemacs/set-leader-keys "at" 'proced)
     (add-hook 'proced-mode-hook (lambda nil (proced-toggle-auto-update 1))))
   (progn ;; projectile
     (setq projectile-switch-project-action 'projectile-dired))
-  (progn ;; prompt
-    (fset 'yes-or-no-p 'y-or-n-p))
   (progn ;; python
     (setq python-shell-interpreter "ipython")
     (spacemacs/set-leader-keys-for-major-mode 'python-mode
@@ -707,7 +715,7 @@ before packages are loaded."
     (engine-mode t)
     (defengine thesaurus "https://thesaurus.com/browse/%s")
     (spacemacs/set-leader-keys
-        ".." 'engine/search-google
+        ".o" 'engine/search-google
         ".g" 'engine/search-github
         ".p" 'engine/search-python-doc
         ".s" 'engine/search-stack-overflow
@@ -722,15 +730,20 @@ before packages are loaded."
       "`" 'ielm
       "\"" 'eshell
       "'" 'spacemacs/default-pop-shell))
-  (progn ;; spacemacs
-    (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/")
+  (progn ;; spell-checking
+    (setq ispell-dictionnary "en,fr"
+          ispell-program-name "hunspell"
+          ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff")
+                                             "fr" "~/.spacemacs.d/dicts/fr.aff")))
+  (progn ;; workspaces
     (spacemacs/set-leader-keys
-      "w" 'spacemacs/workspaces-transient-state/body))
+      "=" 'spacemacs/workspaces-transient-state/body))
   (progn ;; yasnippet
     (setq yas-snippet-dirs '("~/.spacemacs.d/snippets"))
     (spacemacs/set-leader-keys
       "ir" 'yas-reload-all
-      "is" 'yas/visit-snippet-file)))
+      "is" 'yas/visit-snippet-file
+      "iv" 'helm-yas-visit-snippet-file)))
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
