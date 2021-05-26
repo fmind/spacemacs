@@ -85,8 +85,8 @@ This function should only modify configuration layer settings."
      parinfer
      pdf
      (plantuml :variables
-               plantuml-jar-path "/usr/bin/plantuml"
-               org-plantuml-jar-path "/usr/bin/plantuml")
+               plantuml-jar-path "~/.spacemacs.d/plantuml.jar"
+               org-plantuml-jar-path "~/.spacemacs.d/plantuml.jar")
      prodigy
      (python :variables
              python-backend 'anaconda
@@ -658,8 +658,8 @@ before packages are loaded."
     (fset 'yes-or-no-p 'y-or-n-p)
     (setq confirm-nonexistent-file-or-buffer nil))
   (progn ;; compilation
-    (setq compilation-ask-about-save nil)
-          compilation-save-buffers-predicate '(lambda () nil))
+    (setq compilation-ask-about-save nil
+          compilation-save-buffers-predicate '(lambda () nil)))
   (progn ;; copy-as-format
     (setq copy-as-format-default "markdown"))
   (progn ;; deft
@@ -678,7 +678,6 @@ before packages are loaded."
       ".." 'eww
       ".j" 'helm-google-suggest))
   (progn ;; global
-    (global-company-mode t)
     (global-hl-line-mode -1)
     (global-visual-line-mode t))
   (progn ;; layouts
