@@ -46,7 +46,6 @@ This function should only modify configuration layer settings."
                       ;; keys
                       auto-completion-tab-key-behavior nil
                       auto-completion-return-key-behavior nil
-                      auto-completion-complete-with-key-sequence nil
                       ;; limit
                       auto-completion-minimum-prefix-length 1
                       ;; snippets
@@ -101,7 +100,7 @@ This function should only modify configuration layer settings."
      (shell :variables
             close-window-with-terminal nil
             shell-default-full-span t
-            shell-default-height 30
+            shell-default-height 33
             shell-default-position 'bottom
             shell-default-shell 'eshell
             shell-default-term-shell "fish"
@@ -143,7 +142,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(disk-usage)
+   dotspacemacs-additional-packages '(atomic-chrome disk-usage)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -443,12 +442,12 @@ It should only modify the values of Spacemacs settings."
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
-   dotspacemacs-active-transparency 66
+   dotspacemacs-active-transparency 75
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's inactive or deselected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
-   dotspacemacs-inactive-transparency 66
+   dotspacemacs-inactive-transparency 75
 
    ;; If non-nil show the titles of transient states. (default t)
    dotspacemacs-show-transient-state-title t
@@ -625,22 +624,20 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  (progn ;; atomic)
+    (use-package atomic-chrome :defer t
+      :init (atomic-chrome-start-server))
+    (setq atomic-chrome-default-major-mode 'markdown-mode))
   (progn ;; bm
     (spacemacs/set-leader-keys
       "-" 'spacemacs/bm-transient-state/body))
   (progn ;; buffers
     (setq scroll-margin 10)
-    (defun kill-buffer-and-window ()
-      "Kill the buffer with window."
-      (interactive)
-      (kill-this-buffer)
-      (delete-window))
     (defun kill-all-special-buffers ()
       "Kill all emacs special buffers."
       (interactive)
       (kill-matching-buffers "^\\*.*\\*$" nil t))
     (spacemacs/set-leader-keys
-      "wq" 'kill-buffer-and-window
       "oq" 'kill-all-special-buffers)
     (add-hook 'focus-out-hook (lambda () (save-some-buffers t))))
   (progn ;; clojure
@@ -678,8 +675,11 @@ before packages are loaded."
       ".." 'eww
       ".j" 'helm-google-suggest))
   (progn ;; global
+    (cua-mode 1)
     (global-hl-line-mode -1)
     (global-visual-line-mode t))
+  (progn ;; helpful
+    (setq helpful-max-buffers 1))
   (progn ;; layouts
     (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/"))
   (progn ;; magit
@@ -706,7 +706,11 @@ before packages are loaded."
   (progn ;; proced
     (add-hook 'proced-mode-hook (lambda nil (proced-toggle-auto-update 1))))
   (progn ;; projectile
-    (setq projectile-switch-project-action 'projectile-dired))
+    (setq projectile-switch-project-action 'projectile-dired)
+    (with-eval-after-load 'magit
+      (mapc #'projectile-add-known-project
+            (mapcar #'file-name-as-directory
+                  (magit-list-repos)))))
   (progn ;; python
     (setq python-shell-interpreter "ipython")
     (spacemacs/set-leader-keys-for-major-mode 'python-mode
@@ -715,8 +719,8 @@ before packages are loaded."
     (engine-mode t)
     (defengine thesaurus "https://thesaurus.com/browse/%s")
     (spacemacs/set-leader-keys
-        ".o" 'engine/search-google
         ".g" 'engine/search-github
+        ".o" 'engine/search-google
         ".p" 'engine/search-python-doc
         ".s" 'engine/search-stack-overflow
         ".t" 'engine/search-thesaurus
@@ -726,15 +730,34 @@ before packages are loaded."
     (setq eshell-banner-message ""
           eshell-prompt-function 'epe-theme-lambda)
     (evil-set-initial-state 'eshell-mode 'insert)
+    (defun eshell-open-right-and-focus()
+      "Open eshell in another window."
+      (interactive)
+      (split-window-right-and-focus)
+      (eshell))
     (spacemacs/set-leader-keys
       "`" 'ielm
       "\"" 'eshell
-      "'" 'spacemacs/default-pop-shell))
+      "'" 'spacemacs/default-pop-shell
+      "C-'" 'eshell-open-right-and-focus))
   (progn ;; spell-checking
     (setq ispell-dictionnary "en,fr"
           ispell-program-name "hunspell"
           ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff")
                                              "fr" "~/.spacemacs.d/dicts/fr.aff")))
+  (progn ;; transparency
+    (spacemacs/set-leader-keys
+      "ot" 'spacemacs/toggle-transparency))
+  (progn ;; windows
+    (defun kill-window-and-buffer()
+      "Kill the window with buffer."
+      (interactive)
+      (kill-this-buffer)
+      (delete-window))
+    (spacemacs/set-leader-keys
+      "wq" 'kill-buffer-and-window
+      "w C-j" 'split-window-below-and-focus
+      "w C-l" 'split-window-right-and-focus))
   (progn ;; workspaces
     (spacemacs/set-leader-keys
       "=" 'spacemacs/workspaces-transient-state/body))
