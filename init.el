@@ -681,6 +681,13 @@ before packages are loaded."
     (global-visual-line-mode t))
   (progn ;; helpful
     (setq helpful-max-buffers 1))
+  (progn ;; jupyter
+    (defun jupyter-lab-start-server ()
+      "Start a jupyter lab server."
+      (interactive)
+      (async-shell-command "jupyter lab --NotebookApp.token=''"))
+    (spacemacs/set-leader-keys
+      "aj" 'jupyter-lab-start-server))
   (progn ;; layouts
     (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/"))
   (progn ;; magit
@@ -739,6 +746,7 @@ before packages are loaded."
     (spacemacs/set-leader-keys
       "`" 'ielm
       "\"" 'eshell
+      "@" 'async-shell-command
       "'" 'spacemacs/default-pop-shell
       "C-'" 'eshell-open-right-and-focus))
   (progn ;; spell-checking
