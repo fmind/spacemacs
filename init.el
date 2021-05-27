@@ -61,7 +61,8 @@ This function should only modify configuration layer settings."
      copy-as-format
      csv
      deft
-     docker
+     (docker :variables
+             docker-dockerfile-backend 'lsp)
      emacs-lisp
      evil-commentary
      evil-snipe
@@ -69,13 +70,26 @@ This function should only modify configuration layer settings."
      git
      github
      graphviz
+     gtags
      helm
      helpful
      hy
-     (ipython-notebook :variables
-                       ein-backend 'jupyter)
-     json
+     (json :variables
+           json-backend 'lsp)
+     kubernetes
      markdown
+     (languagetool :variables
+                   langtool-default-language "en-US"
+                   languagetool-show-error-on-jump t
+                   langtool-language-tool-jar "~/.spacemacs.d/languagetool-commandline.jar")
+     (lsp :variables
+          lsp-use-lsp-ui nil
+          lsp-lens-enable nil
+          lsp-ui-doc-enable t
+          lsp-ui-sideline-enable nil
+          lsp-modeline-diagnostics-enable nil
+          lsp-modeline-code-actions-enable nil
+          lsp-headerline-breadcrumb-enable nil)
      (org :variables
           org-enable-github-support t
           org-enable-reveal-js-support t
@@ -88,10 +102,12 @@ This function should only modify configuration layer settings."
                org-plantuml-jar-path "~/.spacemacs.d/plantuml.jar")
      prodigy
      (python :variables
-             python-backend 'anaconda
+             python-backend 'lsp
+             python-fill-column 100
              python-formatter 'black
-             python-test-runner 'pytest
-             python-save-before-test t)
+             python-lsp-server 'pylsp
+             python-save-before-test t
+             python-test-runner 'pytest)
      quickurl
      restclient
      restructuredtext
@@ -105,7 +121,8 @@ This function should only modify configuration layer settings."
             shell-default-shell 'eshell
             shell-default-term-shell "fish"
             shell-protect-eshell-prompt t)
-     shell-scripts
+     (shell-scripts :variables
+                    shell-scripts-backend 'lsp)
      speed-reading
      (spell-checking :variables
                      enable-flyspell-auto-completion t
@@ -132,7 +149,9 @@ This function should only modify configuration layer settings."
               vinegar-dired-hide-details nil
               vinegar-reuse-dired-buffer nil)
      xclipboard
-     yaml)
+     (yaml :variables
+           yaml-enable-lsp t))
+
 
    ;; List of additional packages that will be installed without being wrapped
    ;; in a layer (generally the packages are installed only and should still be
@@ -624,6 +643,8 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  ;; prefix
+  (spacemacs/declare-prefix "oi" "install")
   (progn ;; atomic)
     (use-package atomic-chrome :defer t
       :init (atomic-chrome-start-server))
@@ -669,6 +690,8 @@ before packages are loaded."
   (progn ;; evil
     (setq-default evil-symbol-word-search t)
     (define-key evil-motion-state-map (kbd "RET") 'evil-ex)
+    (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+    (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
     (define-key evil-normal-state-map "gl" 'spacemacs/evil-search-clear-highlight))
   (progn ;; eww
     (setq eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
@@ -690,6 +713,18 @@ before packages are loaded."
       "aj" 'jupyter-lab-start-server))
   (progn ;; layouts
     (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/"))
+  (progn ;; lsp
+    (setq lsp-backends '("bash-language-server"
+                          "vscode-json-languageserver"
+                          "yaml-language-server" "js-yaml"
+                          "dockerfile-language-server-nodejs"))
+    (defun lsp-install-backends ()
+      (interactive
+       (let* ((backends (string-join lsp-backends " "))
+              (command (concat "npm i -g " backends)))
+         (async-shell-command command))))
+    (spacemacs/set-leader-keys
+      "oil" 'lsp-install-backends))
   (progn ;; magit
     (setq git-magit-status-fullscreen t
           magit-repository-directories '(("~/projects/" . 1)
@@ -720,7 +755,20 @@ before packages are loaded."
             (mapcar #'file-name-as-directory
                   (magit-list-repos)))))
   (progn ;; python
-    (setq python-shell-interpreter "ipython")
+    (setq python-shell-interpreter "ipython"
+          python-dependencies
+          '("'python-language-server[all]'" "autoflake" "bandit" "black" "coverage" "epc" "flake8"
+            "importmagic" "invoke" "ipdb" "ipython" "isort" "mypy" "pdoc" "profiling" "pylint"
+            "pyls-black" "pyls-isort" "pyls-mypy" "pytest" "rope" "twine" "vulture" "wheel"))
+    (defun python-install-dependencies (as-user)
+      (interactive
+       (list (y-or-n-p "Install as user?")))
+      (let* ((flags (if as-user "--user " ""))
+             (dependencies (string-join python-dependencies " "))
+             (command (concat "python3 -m pip install " flags dependencies)))
+        (async-shell-command command)))
+    (spacemacs/set-leader-keys
+      "oip" 'python-install-dependencies)
     (spacemacs/set-leader-keys-for-major-mode 'python-mode
       ";" 'python-shell-send-buffer))
   (progn ;; search-engine
