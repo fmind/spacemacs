@@ -667,6 +667,7 @@ before packages are loaded."
   (progn ;; disk-usage
     (spacemacs/set-leader-keys "af" 'disk-usage))
   (progn ;; evil
+    (setq-default evil-symbol-word-search t)
     (define-key evil-motion-state-map (kbd "RET") 'evil-ex)
     (define-key evil-normal-state-map "gl" 'spacemacs/evil-search-clear-highlight))
   (progn ;; eww
