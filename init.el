@@ -78,19 +78,10 @@ This function should only modify configuration layer settings."
                    langtool-default-language "en-US"
                    languagetool-show-error-on-jump t
                    langtool-language-tool-jar "~/.spacemacs.d/languagetool-commandline.jar")
-     ;; (lsp :variables
-     ;;      lsp-use-lsp-ui nil
-     ;;      lsp-lens-enable nil
-     ;;      lsp-ui-doc-enable nil
-     ;;      lsp-ui-sideline-enable nil
-     ;;      lsp-modeline-diagnostics-enable nil
-     ;;      lsp-modeline-code-actions-enable nil
-     ;;      lsp-headerline-breadcrumb-enable nil)
      (org :variables
           org-enable-github-support t
           org-enable-reveal-js-support t
           org-projectile-file "~/Notes/TODO.org")
-     outshine
      pandoc
      parinfer
      pass
@@ -429,7 +420,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil a progress bar is displayed when spacemacs is loading. This
    ;; may increase the boot time on some systems and emacs builds, set it to
    ;; nil to boost the loading time. (default t)
-   dotspacemacs-loading-progress-bar t
+   dotspacemacs-loading-progress-bar nil
 
    ;; If non-nil the frame is fullscreen when Emacs starts up. (default nil)
    ;; (Emacs 24.4+ only)
@@ -634,8 +625,8 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-  ;; prefix
-  (spacemacs/declare-prefix "oi" "install")
+  (progn ;; abc
+    (spacemacs/declare-prefix "oi" "install"))
   (progn ;; atomic)
     (use-package atomic-chrome :defer t
       :init (atomic-chrome-start-server))
@@ -673,7 +664,7 @@ before packages are loaded."
     (setq copy-as-format-default "markdown"))
   (progn ;; deft
     (setq deft-directory "~/Notes/"
-          deft-extensions '("org" "md" "txt"))
+          deft-extensions '("org" "md"))
     (spacemacs/set-leader-keys
       "an" 'spacemacs/deft))
   (progn ;; disk-usage
@@ -736,8 +727,7 @@ before packages are loaded."
       "ga" 'magit-fetch-all-repositories))
   (progn ;; org
     (setq org-directory "~/Notes"
-          org-tags-alist '("HACK" "HOME" "WORK")
-          org-todo-keywords '("TODO" "" "DONE")))
+          org-todo-keywords '("TODO" "DONE")))
   (progn ;; osx
     (setq mac-command-modifier 'control))
   (progn ;; proced
@@ -762,16 +752,15 @@ before packages are loaded."
              (dependencies (string-join python-dependencies " "))
              (command (concat "python3 -m pip install " flags dependencies)))
         (async-shell-command command)))
-    (define-key python-mode-map
-      (kbd "C-c C-m") 'code-cells-mark-cell
-      (kbd "C-c C-j") 'code-cells-forward-cell
-      (kbd "C-c C-k") 'code-cells-backward-cell
-      (kbd "C-c C-c") (code-cells-command 'python-shell-send-region))
+    ;; (define-key python-mode-map (kbd "C-c C-m") 'code-cells-mark-cell)
+    ;; (define-key python-mode-map (kbd "C-c C-j") 'code-cells-forward-cell)
+    ;; (define-key python-mode-map (kbd "C-c C-k") 'code-cells-backward-cell)
+    ;; (define-key python-mode-map (kbd "C-c C-c") (code-cells-command 'python-shell-send-region))
     (spacemacs/set-leader-keys
       "oip" 'python-install-dependencies)
     (spacemacs/set-leader-keys-for-major-mode 'python-mode
-      ";" 'python-shell-send-buffer)
-    (add-hook 'python-mode-hook (lambda () (code-cells-mode))))
+      ";" 'python-shell-send-buffer))
+    ;; (add-hook 'python-mode-hook (lambda () (code-cells-mode))))
   (progn ;; search-engine
     (engine-mode t)
     (defengine thesaurus "https://thesaurus.com/browse/%s")
@@ -801,8 +790,8 @@ before packages are loaded."
   (progn ;; spell-checking
     (setq ispell-dictionnary "en,fr"
           ispell-program-name "hunspell"
-          ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff"
-                                              "fr" "~/.spacemacs.d/dicts/fr.aff"))))
+          ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff")
+                                             ("fr" "~/.spacemacs.d/dicts/fr.aff"))))
   (progn ;; transparency
     (spacemacs/set-leader-keys
       "ot" 'spacemacs/toggle-transparency))
