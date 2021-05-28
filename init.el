@@ -752,8 +752,9 @@ before packages are loaded."
     (setq python-shell-interpreter "ipython"
           python-dependencies
           '("autoflake" "bandit" "black" "coverage" "epc" "flake8" "importmagic"
-            "invoke" "ipdb" "ipython" "isort" "jedi" "mypy" "pdoc" "profiling"
-            "pylint" "rope" "twine" "vulture" "wheel"))
+            "invoke" "ipdb" "ipython" "isort" "jedi" "json-rpc" "mypy" "pdoc"
+            "profiling" "pylint" "rope" "service_factory" "twine" "vulture"
+            "wheel"))
     (defun python-install-dependencies (as-user)
       (interactive
        (list (y-or-n-p "Install as user?")))
