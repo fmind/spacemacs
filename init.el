@@ -156,7 +156,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(atomic-chrome disk-usage)
+   dotspacemacs-additional-packages '(atomic-chrome code-cells disk-usage)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -254,9 +254,11 @@ It should only modify the values of Spacemacs settings."
    ;; section of the documentation for details on available variables.
    ;; (default 'vim)
    dotspacemacs-editing-style '(hybrid :variables
-                                       hybrid-mode-default-state 'normal
-                                       hybrid-mode-enable-hjkl-bindings t
-                                       hybrid-mode-enable-evilified-state t)
+                                       hybrid-style-visual-feedback nil
+                                       hybrid-style-default-state 'normal
+                                       hybrid-style-enable-hjkl-bindings t
+                                       hybrid-style-enable-evilified-state t
+                                       hybrid-style-use-evil-search-module t)
 
    ;; If non-nil show the version string in the Spacemacs buffer. It will
    ;; appear as (spacemacs version)@(emacs version)
@@ -732,6 +734,10 @@ before packages are loaded."
     (spacemacs/set-leader-keys
       "gq" 'magit-kill-all-buffers
       "ga" 'magit-fetch-all-repositories))
+  (progn ;; org
+    (setq org-directory "~/Notes"
+          org-tags-alist '("HACK" "HOME" "WORK")
+          org-todo-keywords '("TODO" "" "DONE")))
   (progn ;; osx
     (setq mac-command-modifier 'control))
   (progn ;; proced
@@ -755,10 +761,16 @@ before packages are loaded."
              (dependencies (string-join python-dependencies " "))
              (command (concat "python3 -m pip install " flags dependencies)))
         (async-shell-command command)))
+    (define-key python-mode-map
+      (kbd "C-c C-m") 'code-cells-mark-cell
+      (kbd "C-c C-j") 'code-cells-forward-cell
+      (kbd "C-c C-k") 'code-cells-backward-cell
+      (kbd "C-c C-c") (code-cells-command 'python-shell-send-region))
     (spacemacs/set-leader-keys
       "oip" 'python-install-dependencies)
     (spacemacs/set-leader-keys-for-major-mode 'python-mode
-      ";" 'python-shell-send-buffer))
+      ";" 'python-shell-send-buffer)
+    (add-hook 'python-mode-hook (lambda () (code-cells-mode))))
   (progn ;; search-engine
     (engine-mode t)
     (defengine thesaurus "https://thesaurus.com/browse/%s")
