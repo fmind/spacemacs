@@ -51,12 +51,9 @@ This function should only modify configuration layer settings."
                       ;; snippets
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-private-snippets-directory "~/.spacemacs.d/snippets")
-     (better-defaults :variables
-                      better-defaults-move-to-end-of-code-first t
-                      better-defaults-move-to-beginning-of-code-first t)
+     better-defaults
      bm
-     (clojure :variables
-              clojure-enable-fancify-symbols t)
+     clojure
      command-log
      copy-as-format
      csv
@@ -73,6 +70,7 @@ This function should only modify configuration layer settings."
      helm
      helpful
      hy
+     imenu-list
      json
      kubernetes
      markdown
@@ -92,17 +90,19 @@ This function should only modify configuration layer settings."
           org-enable-github-support t
           org-enable-reveal-js-support t
           org-projectile-file "~/Notes/TODO.org")
+     outshine
      pandoc
      parinfer
+     pass
      pdf
      (plantuml :variables
                plantuml-jar-path "~/.spacemacs.d/plantuml.jar"
                org-plantuml-jar-path "~/.spacemacs.d/plantuml.jar")
      prodigy
      (python :variables
-             python-backend 'anaconda
              python-fill-column 100
              python-formatter 'black
+             python-backend 'anaconda
              python-save-before-test t
              python-test-runner 'pytest)
      quickurl
@@ -111,13 +111,13 @@ This function should only modify configuration layer settings."
      search-engine
      semantic
      (shell :variables
-            close-window-with-terminal nil
-            shell-default-full-span t
             shell-default-height 33
-            shell-default-position 'bottom
+            shell-default-full-span t
             shell-default-shell 'eshell
+            shell-protect-eshell-prompt t
+            shell-default-position 'bottom
             shell-default-term-shell "fish"
-            shell-protect-eshell-prompt t)
+            close-window-with-terminal nil)
      shell-scripts
      speed-reading
      (spell-checking :variables
@@ -147,7 +147,6 @@ This function should only modify configuration layer settings."
      windows-scripts
      xclipboard
      yaml)
-
 
    ;; List of additional packages that will be installed without being wrapped
    ;; in a layer (generally the packages are installed only and should still be
@@ -282,9 +281,7 @@ It should only modify the values of Spacemacs settings."
    ;; pair of numbers, e.g. `(recents-by-project . (7 .  5))', where the first
    ;; number is the project limit and the second the limit on the recent files
    ;; within a project.
-   dotspacemacs-startup-lists '((recents . 10)
-                                (projects . 10)
-                                (bookmarks . 10))
+   dotspacemacs-startup-lists '((recents . 10) (projects . 10) (bookmarks . 10))
 
    ;; True if the home buffer should respond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
@@ -298,7 +295,7 @@ It should only modify the values of Spacemacs settings."
    ;; Default major mode for a new empty buffer. Possible values are mode
    ;; names such as `text-mode'; and `nil' to use Fundamental mode.
    ;; (default `text-mode')
-   dotspacemacs-new-empty-buffer-major-mode 'text-mode
+   dotspacemacs-new-empty-buffer-major-mode 'markdown-mode
 
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'org-mode
@@ -336,11 +333,7 @@ It should only modify the values of Spacemacs settings."
    ;; Default font or prioritized list of fonts. The `:size' can be specified as
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
-   dotspacemacs-default-font '("Hack"
-                               :size 15
-                               :width normal
-                               :weight normal
-                               :powerline-scale 1.1)
+   dotspacemacs-default-font '("Hack" :size 15 :width normal :weight normal :powerline-scale 1.1)
 
    ;; The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
@@ -503,8 +496,8 @@ It should only modify the values of Spacemacs settings."
    ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
    dotspacemacs-line-numbers '(:relative 'relative
-                                         :size-limit-kb 1000
-                                         :disabled-for-modes dired-mode doc-view-mode pdf-view-mode)
+                               :size-limit-kb 1000
+                               :disabled-for-modes dired-mode doc-view-mode pdf-view-mode)
 
    ;; Code folding method. Possible values are `evil', `origami' and `vimish'.
    ;; (default 'evil)
@@ -684,7 +677,7 @@ before packages are loaded."
   (progn ;; disk-usage
     (spacemacs/set-leader-keys "af" 'disk-usage))
   (progn ;; evil
-    (setq-default evil-symbol-word-search t)
+    (setq evil-symbol-word-search t)
     (define-key evil-motion-state-map (kbd "RET") 'evil-ex)
     (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
     (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
@@ -723,8 +716,7 @@ before packages are loaded."
       "oil" 'lsp-install-backends))
   (progn ;; magit
     (setq git-magit-status-fullscreen t
-          magit-repository-directories '(("~/projects/" . 1)
-                                         ("~/Projects/" . 1)))
+          magit-repository-directories '(("~/projects/" . 1)))
     (defun magit-kill-all-buffers ()
       "Kill all alive magit buffers."
       (interactive)
@@ -796,8 +788,8 @@ before packages are loaded."
   (progn ;; spell-checking
     (setq ispell-dictionnary "en,fr"
           ispell-program-name "hunspell"
-          ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff")
-                                             "fr" "~/.spacemacs.d/dicts/fr.aff")))
+          ispell-hunspell-dict-paths-alist '(("en" "~/.spacemacs.d/dicts/en.aff"
+                                              "fr" "~/.spacemacs.d/dicts/fr.aff"))))
   (progn ;; transparency
     (spacemacs/set-leader-keys
       "ot" 'spacemacs/toggle-transparency))
