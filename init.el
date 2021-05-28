@@ -144,6 +144,7 @@ This function should only modify configuration layer settings."
      (vinegar :variables
               vinegar-dired-hide-details nil
               vinegar-reuse-dired-buffer nil)
+     windows-scripts
      xclipboard
      yaml)
 
