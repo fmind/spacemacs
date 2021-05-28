@@ -61,8 +61,7 @@ This function should only modify configuration layer settings."
      copy-as-format
      csv
      deft
-     (docker :variables
-             docker-dockerfile-backend 'lsp)
+     docker
      emacs-lisp
      evil-commentary
      evil-snipe
@@ -74,22 +73,21 @@ This function should only modify configuration layer settings."
      helm
      helpful
      hy
-     (json :variables
-           json-backend 'lsp)
+     json
      kubernetes
      markdown
      (languagetool :variables
                    langtool-default-language "en-US"
                    languagetool-show-error-on-jump t
                    langtool-language-tool-jar "~/.spacemacs.d/languagetool-commandline.jar")
-     (lsp :variables
-          lsp-use-lsp-ui nil
-          lsp-lens-enable nil
-          lsp-ui-doc-enable t
-          lsp-ui-sideline-enable nil
-          lsp-modeline-diagnostics-enable nil
-          lsp-modeline-code-actions-enable nil
-          lsp-headerline-breadcrumb-enable nil)
+     ;; (lsp :variables
+     ;;      lsp-use-lsp-ui nil
+     ;;      lsp-lens-enable nil
+     ;;      lsp-ui-doc-enable nil
+     ;;      lsp-ui-sideline-enable nil
+     ;;      lsp-modeline-diagnostics-enable nil
+     ;;      lsp-modeline-code-actions-enable nil
+     ;;      lsp-headerline-breadcrumb-enable nil)
      (org :variables
           org-enable-github-support t
           org-enable-reveal-js-support t
@@ -102,10 +100,9 @@ This function should only modify configuration layer settings."
                org-plantuml-jar-path "~/.spacemacs.d/plantuml.jar")
      prodigy
      (python :variables
-             python-backend 'lsp
+             python-backend 'anaconda
              python-fill-column 100
              python-formatter 'black
-             python-lsp-server 'pylsp
              python-save-before-test t
              python-test-runner 'pytest)
      quickurl
@@ -121,8 +118,7 @@ This function should only modify configuration layer settings."
             shell-default-shell 'eshell
             shell-default-term-shell "fish"
             shell-protect-eshell-prompt t)
-     (shell-scripts :variables
-                    shell-scripts-backend 'lsp)
+     shell-scripts
      speed-reading
      (spell-checking :variables
                      enable-flyspell-auto-completion t
@@ -149,8 +145,7 @@ This function should only modify configuration layer settings."
               vinegar-dired-hide-details nil
               vinegar-reuse-dired-buffer nil)
      xclipboard
-     (yaml :variables
-           yaml-enable-lsp t))
+     yaml)
 
 
    ;; List of additional packages that will be installed without being wrapped
@@ -715,9 +710,9 @@ before packages are loaded."
     (setq spacemacs-layouts-directory "~/.spacemacs.d/layouts/"))
   (progn ;; lsp
     (setq lsp-backends '("bash-language-server"
-                          "vscode-json-languageserver"
-                          "yaml-language-server" "js-yaml"
-                          "dockerfile-language-server-nodejs"))
+                         "vscode-json-languageserver"
+                         "yaml-language-server" "js-yaml"
+                         "dockerfile-language-server-nodejs"))
     (defun lsp-install-backends ()
       (interactive
        (let* ((backends (string-join lsp-backends " "))
@@ -757,9 +752,9 @@ before packages are loaded."
   (progn ;; python
     (setq python-shell-interpreter "ipython"
           python-dependencies
-          '("'python-language-server[all]'" "autoflake" "bandit" "black" "coverage" "epc" "flake8"
-            "importmagic" "invoke" "ipdb" "ipython" "isort" "mypy" "pdoc" "profiling" "pylint"
-            "pyls-black" "pyls-isort" "pyls-mypy" "pytest" "rope" "twine" "vulture" "wheel"))
+          '("autoflake" "bandit" "black" "coverage" "epc" "flake8" "importmagic"
+            "invoke" "ipdb" "ipython" "isort" "jedi" "mypy" "pdoc" "profiling"
+            "pylint" "rope" "twine" "vulture" "wheel"))
     (defun python-install-dependencies (as-user)
       (interactive
        (list (y-or-n-p "Install as user?")))
